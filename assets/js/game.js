@@ -642,7 +642,7 @@ const Game = (() => {
             const found = wp.found;
             html += `
                 <div class="word-list-item ${found ? 'found' : ''}" data-word="${wp.word}">
-                    <span class="word-text">${found ? wp.word.toUpperCase() : '• '.repeat(wp.word.length).trim()}</span>
+                    <span class="word-text">${wp.word.toUpperCase()}</span>
                     ${found ? '<span class="word-check">✓</span>' : ''}
                 </div>
             `;
