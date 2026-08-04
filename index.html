@@ -107,6 +107,11 @@
                         <span class="menu-btn-text">Novo Jogo</span>
                         <span class="menu-btn-desc">Tabuleiro aleatório</span>
                     </button>
+                    <button class="menu-btn menu-btn-career" data-action="phases">
+                        <span class="menu-btn-icon">🗺️</span>
+                        <span class="menu-btn-text">Modo Carreira</span>
+                        <span class="menu-btn-desc">15 fases progressivas</span>
+                    </button>
                     <button class="menu-btn menu-btn-daily" data-action="daily-game">
                         <span class="menu-btn-icon">📅</span>
                         <span class="menu-btn-text">Desafio Diário</span>
@@ -203,6 +208,17 @@
                         <div class="word-list" id="word-list"></div>
                     </aside>
                 </div>
+            </div>
+        </section>
+
+        <!-- ===== TELA: FASES (MODO CARREIRA) ===== -->
+        <section class="screen" data-screen="phases" tabindex="-1" aria-label="Modo Carreira - Fases">
+            <div class="page-container">
+                <div class="page-header">
+                    <button class="icon-btn" data-action="back" aria-label="Voltar">←</button>
+                    <h2 class="page-title">🗺️ Modo Carreira</h2>
+                </div>
+                <div class="page-body" id="phases-content"></div>
             </div>
         </section>
 

@@ -379,6 +379,20 @@ body {
     box-shadow: 0 0 30px rgba(253, 121, 168, 0.3);
 }
 
+.menu-btn-career {
+    background: linear-gradient(135deg, var(--accent-success), #00cec9);
+    border-color: transparent;
+    color: #fff;
+}
+
+.menu-btn-career:hover {
+    box-shadow: 0 0 30px rgba(0, 184, 148, 0.3);
+}
+
+.menu-btn-career .menu-btn-desc {
+    color: rgba(255, 255, 255, 0.8);
+}
+
 .menu-btn-icon {
     font-size: 1.5rem;
     flex-shrink: 0;
@@ -1627,4 +1641,111 @@ kbd {
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border: 0;
+}
+
+/* ---- Phases (Modo Carreira) ---- */
+.phases-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 16px;
+}
+
+.phase-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 20px 12px;
+    background: var(--bg-card);
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition);
+    backdrop-filter: blur(10px);
+    text-align: center;
+    color: var(--text-primary);
+    font-family: inherit;
+}
+
+.phase-card:hover:not(.locked) {
+    border-color: var(--accent-primary);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+}
+
+.phase-card.locked {
+    opacity: 0.4;
+    cursor: not-allowed;
+    filter: grayscale(0.5);
+}
+
+.phase-card.completed {
+    border-color: var(--accent-success);
+}
+
+.phase-card.current {
+    border-color: var(--accent-warning);
+    box-shadow: 0 0 15px rgba(253, 203, 110, 0.2);
+}
+
+.phase-card-icon {
+    font-size: 2rem;
+    line-height: 1;
+}
+
+.phase-card.locked .phase-card-icon::after {
+    content: '🔒';
+    position: absolute;
+    font-size: 1.2rem;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.phase-card-number {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.phase-card-name {
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.phase-card-difficulty {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    padding: 2px 10px;
+    border-radius: 100px;
+    background: var(--bg-tertiary);
+}
+
+.phase-card-status {
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+.phase-card.completed .phase-card-status {
+    color: var(--accent-success);
+}
+
+.phase-progress-bar {
+    margin-bottom: 20px;
+    padding: 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+}
+
+.phase-progress-label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
 }

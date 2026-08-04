@@ -4,7 +4,7 @@
  * Permite funcionamento totalmente offline após o primeiro carregamento.
  */
 
-const CACHE_NAME = 'caca-palavras-v1.0.0';
+const CACHE_NAME = 'caca-palavras-v1.1.0';
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',

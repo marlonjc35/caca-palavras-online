@@ -122,6 +122,38 @@ const Levels = (() => {
         return [...LEVEL_ORDER];
     }
 
+    // ---- Sistema de Fases (Modo Carreira) ----
+    // 15 fases progressivas com categorias temáticas
+    const PHASES = [
+        { id: 1,  name: 'Iniciante',     difficulty: 'facil',  category: 'animais',     icon: '🐾' },
+        { id: 2,  name: 'Frutas',        difficulty: 'facil',  category: 'frutas',      icon: '🍎' },
+        { id: 3,  name: 'Cores da Terra',difficulty: 'facil',  category: 'natureza',    icon: '🌿' },
+        { id: 4,  name: 'Corpo Humano',  difficulty: 'facil',  category: 'corpoHumano', icon: '🫀' },
+        { id: 5,  name: 'Objetos',       difficulty: 'facil',  category: 'objetos',      icon: '📦' },
+        { id: 6,  name: 'Profissões',    difficulty: 'medio',  category: 'profissoes',  icon: '👨‍⚕️' },
+        { id: 7,  name: 'Esportes',      difficulty: 'medio',  category: 'esportes',    icon: '⚽' },
+        { id: 8,  name: 'Países',        difficulty: 'medio',  category: 'paises',      icon: '🌍' },
+        { id: 9,  name: 'Tecnologia',    difficulty: 'medio',  category: 'tecnologia',  icon: '💻' },
+        { id: 10, name: 'Culinária',     difficulty: 'medio',  category: 'culinaria',   icon: '🍳' },
+        { id: 11, name: 'Ciência',       difficulty: 'dificil',category: 'ciencia',     icon: '🔬' },
+        { id: 12, name: 'Astronomia',    difficulty: 'dificil',category: 'astronomia',   icon: '🪐' },
+        { id: 13, name: 'Mitologia',     difficulty: 'dificil',category: 'mitologia',   icon: '⚡' },
+        { id: 14, name: 'Programação',   difficulty: 'dificil',category: 'programacao',  icon: '⌨️' },
+        { id: 15, name: 'Mestre',        difficulty: 'dificil',category: null,           icon: '👑' }
+    ];
+
+    function getPhases() {
+        return [...PHASES];
+    }
+
+    function getPhase(id) {
+        return PHASES.find(p => p.id === id) || PHASES[0];
+    }
+
+    function getPhaseCount() {
+        return PHASES.length;
+    }
+
     /**
      * Calcula a pontuação de uma partida.
      * @param {string} levelId - ID do nível.
@@ -162,7 +194,10 @@ const Levels = (() => {
         getLevel,
         getAllLevels,
         getLevelIds,
-        calculateScore
+        calculateScore,
+        getPhases,
+        getPhase,
+        getPhaseCount
     };
 })();
 

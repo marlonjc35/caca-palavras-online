@@ -13,7 +13,8 @@ const Storage = (() => {
         achievements: `${PREFIX}achievements`,
         settings: `${PREFIX}settings`,
         savedGame: `${PREFIX}saved_game`,
-        recentWords: `${PREFIX}recent_words`
+        recentWords: `${PREFIX}recent_words`,
+        phases: `${PREFIX}phases`
     };
 
     // ---- Helper: Safe JSON ----
@@ -351,6 +352,48 @@ const Storage = (() => {
         write(KEYS.recentWords, recent);
     }
 
+    // ---- Fases (Modo Carreira) ----
+
+    function getPhaseProgress() {
+        return read(KEYS.phases, { completed: [], current: 1 });
+    }
+
+    function isPhaseCompleted(phaseId) {
+        const progress = getPhaseProgress();
+        return progress.completed.includes(phaseId);
+    }
+
+    function completePhase(phaseId) {
+        const progress = getPhaseProgress();
+        if (!progress.completed.includes(phaseId)) {
+            progress.completed.push(phaseId);
+        }
+        // Desbloqueia a próxima fase
+        const totalPhases = Levels.getPhaseCount();
+        if (phaseId < totalPhases && !progress.completed.includes(phaseId + 1)) {
+            progress.current = Math.max(progress.current, phaseId + 1);
+        }
+        write(KEYS.phases, progress);
+        return progress;
+    }
+
+    function getUnlockedPhases() {
+        const progress = getPhaseProgress();
+        const totalPhases = Levels.getPhaseCount();
+        const unlocked = [];
+        for (let i = 1; i <= totalPhases; i++) {
+            if (i === 1 || progress.completed.includes(i - 1)) {
+                unlocked.push(i);
+            }
+        }
+        return unlocked;
+    }
+
+    function isPhaseUnlocked(phaseId) {
+        const unlocked = getUnlockedPhases();
+        return unlocked.includes(phaseId);
+    }
+
     // ---- Reset ----
 
     function resetAll() {
@@ -383,6 +426,12 @@ const Storage = (() => {
         // Recent words
         getRecentWords,
         addRecentWords,
+        // Phases
+        getPhaseProgress,
+        isPhaseCompleted,
+        completePhase,
+        getUnlockedPhases,
+        isPhaseUnlocked,
         // Reset
         resetAll
     };

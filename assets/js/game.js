@@ -504,6 +504,11 @@ const Game = (() => {
         // Limpa jogo salvo
         Storage.clearSavedGame();
 
+        // Se for modo carreira, registra conclusão da fase
+        if (state.mode === 'phase' && state.currentPhase) {
+            onPhaseComplete(state.currentPhase);
+        }
+
         // Mostra tela de vitória
         setTimeout(() => showVictoryScreen(gameResult), 800);
     }
@@ -550,10 +555,18 @@ const Game = (() => {
             </div>
         `;
 
-        UI.showModal('Vitória!', content, [
-            { id: 'new-game', label: '🔄 Novo Jogo', type: 'primary', callback: () => startNewGame(state.levelId, state.mode) },
-            { id: 'menu', label: '🏠 Menu', type: 'secondary', callback: () => UI.showScreen('menu') }
-        ]);
+        const actions = [];
+        if (state.mode === 'phase' && state.currentPhase < Levels.getPhaseCount()) {
+            actions.push({ id: 'next-phase', label: '➡️ Próxima Fase', type: 'primary', callback: () => startPhase(state.currentPhase + 1) });
+            actions.push({ id: 'menu', label: '🏠 Menu', type: 'secondary', callback: () => UI.showScreen('menu') });
+        } else if (state.mode === 'phase') {
+            actions.push({ id: 'menu', label: '🏆 Menu', type: 'primary', callback: () => UI.showScreen('menu') });
+        } else {
+            actions.push({ id: 'new-game', label: '🔄 Novo Jogo', type: 'primary', callback: () => startNewGame(state.levelId, state.mode) });
+            actions.push({ id: 'menu', label: '🏠 Menu', type: 'secondary', callback: () => UI.showScreen('menu') });
+        }
+
+        UI.showModal('Vitória!', content, actions);
 
         // Bind share buttons
         setTimeout(() => {
@@ -715,7 +728,8 @@ const Game = (() => {
             errors: state.errors,
             seed: state.seed,
             isDaily: state.isDaily,
-            dailyDate: state.dailyDate
+            dailyDate: state.dailyDate,
+            currentPhase: state.currentPhase || null
         });
     }
 
@@ -741,6 +755,7 @@ const Game = (() => {
         state.dailyDate = saved.dailyDate;
         state.isPaused = false;
         state.isPlaying = true;
+        state.currentPhase = saved.currentPhase || null;
 
         renderBoard();
         renderWordList();
@@ -773,6 +788,10 @@ const Game = (() => {
             if (state.isDaily) {
                 badge.style.display = 'inline-flex';
                 badge.textContent = `📅 ${state.dailyDate}`;
+            } else if (state.mode === 'phase' && state.currentPhase) {
+                const phase = Levels.getPhase(state.currentPhase);
+                badge.style.display = 'inline-flex';
+                badge.textContent = `🗺️ Fase ${state.currentPhase}: ${phase.name}`;
             } else {
                 badge.style.display = 'none';
             }
@@ -842,6 +861,10 @@ const Game = (() => {
                 case 'new-game':
                     showLevelSelect('random');
                     break;
+                case 'phases':
+                    renderPhases();
+                    UI.showScreen('phases');
+                    break;
                 case 'daily-game':
                     showLevelSelect('daily');
                     break;
@@ -887,6 +910,11 @@ const Game = (() => {
                     const level = e.target.closest('[data-level]')?.dataset.level;
                     const mode = e.target.closest('[data-mode]')?.dataset.mode || 'random';
                     if (level) startNewGame(level, mode);
+                    break;
+                }
+                case 'start-phase': {
+                    const phaseId = parseInt(e.target.closest('[data-phase]')?.dataset.phase);
+                    if (phaseId) startPhase(phaseId);
                     break;
                 }
             }
@@ -1038,15 +1066,150 @@ const Game = (() => {
         AudioManager.setVolume(settings.volume);
     }
 
+    // ---- Modo Carreira (Fases) ----
+
+    function renderPhases() {
+        const container = document.getElementById('phases-content');
+        if (!container) return;
+
+        const phases = Levels.getPhases();
+        const progress = Storage.getPhaseProgress();
+        const unlocked = Storage.getUnlockedPhases();
+
+        let html = `
+            <div class="phase-progress-bar">
+                <div class="phase-progress-label">
+                    <span>Progresso</span>
+                    <span>${progress.completed.length} / ${phases.length} fases</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" style="width: ${(progress.completed.length / phases.length) * 100}%"></div>
+                </div>
+            </div>
+            <div class="phases-grid">
+        `;
+
+        phases.forEach(phase => {
+            const isUnlocked = unlocked.includes(phase.id);
+            const isCompleted = progress.completed.includes(phase.id);
+            const isCurrent = !isCompleted && isUnlocked;
+            const level = Levels.getLevel(phase.difficulty);
+
+            let statusText = '';
+            if (isCompleted) statusText = '✅ Concluída';
+            else if (isUnlocked) statusText = '▶️ Jogar';
+            else statusText = '🔒 Bloqueada';
+
+            html += `
+                <button class="phase-card ${!isUnlocked ? 'locked' : ''} ${isCompleted ? 'completed' : ''} ${isCurrent ? 'current' : ''}"
+                    data-action="start-phase" data-phase="${phase.id}"
+                    ${!isUnlocked ? 'disabled' : ''}>
+                    <div class="phase-card-icon">${phase.icon}</div>
+                    <div class="phase-card-number">Fase ${phase.id}</div>
+                    <div class="phase-card-name">${phase.name}</div>
+                    <div class="phase-card-difficulty">${level.icon} ${level.name}</div>
+                    <div class="phase-card-status">${statusText}</div>
+                </button>
+            `;
+        });
+
+        html += '</div>';
+        container.innerHTML = html;
+    }
+
+    function startPhase(phaseId) {
+        const phase = Levels.getPhase(phaseId);
+        if (!Storage.isPhaseUnlocked(phaseId)) {
+            UI.showToast('Fase bloqueada! Complete a anterior.', 'warning');
+            return;
+        }
+
+        const level = Levels.getLevel(phase.difficulty);
+        const categories = phase.category ? [phase.category] : [];
+        const recentWords = Storage.getRecentWords();
+
+        const words = Dictionary.selectRandomWords(
+            level.wordCount,
+            categories,
+            level.minWordLength,
+            level.maxWordLength,
+            recentWords
+        );
+
+        const boardData = Generator.generateRandom(level, words);
+
+        state.levelId = phase.difficulty;
+        state.level = level;
+        state.boardData = boardData;
+        state.grid = boardData.grid;
+        state.gridSize = boardData.gridSize;
+        state.words = boardData.placedWords;
+        state.wordPositions = boardData.wordPositions.map(wp => ({ ...wp, found: false }));
+        state.foundWords = new Set();
+        state.startTime = Date.now();
+        state.elapsedTime = 0;
+        state.score = 0;
+        state.hintsUsed = 0;
+        state.hintsAllowed = level.hintsAllowed;
+        state.errors = 0;
+        state.seed = boardData.seed;
+        state.mode = 'phase';
+        state.isDaily = false;
+        state.isPaused = false;
+        state.isPlaying = true;
+        state.currentPhase = phaseId;
+
+        Storage.addRecentWords(boardData.placedWords);
+
+        renderBoard();
+        renderWordList();
+        updateGameInfo();
+        startTimer();
+
+        UI.showScreen('game');
+        AudioManager.init();
+        AudioManager.resume();
+        updateDailyBadge();
+
+        const phaseBadge = document.getElementById('daily-badge');
+        if (phaseBadge) {
+            phaseBadge.style.display = 'inline-flex';
+            phaseBadge.textContent = `🗺️ Fase ${phaseId}: ${phase.name}`;
+        }
+
+        saveGameState();
+    }
+
+    function onPhaseComplete(phaseId) {
+        const progress = Storage.completePhase(phaseId);
+        const phase = Levels.getPhase(phaseId);
+        UI.showToast(`Fase ${phaseId} (${phase.name}) concluída! 🎉`, 'success', 4000);
+
+        const totalPhases = Levels.getPhaseCount();
+        if (phaseId < totalPhases) {
+            const next = Levels.getPhase(phaseId + 1);
+            setTimeout(() => {
+                UI.showToast(`Fase ${phaseId + 1} desbloqueada: ${next.name}! 🔓`, 'achievement', 4000);
+            }, 2500);
+        } else {
+            setTimeout(() => {
+                UI.showToast('Você completou TODAS as fases! 👑', 'achievement', 5000);
+            }, 2500);
+        }
+    }
+
     return {
         init,
         startNewGame,
+        startPhase,
         loadSavedGame,
         togglePause,
         useHint,
         abandonGame,
         saveGameState,
         updateMenuState,
+        renderPhases,
+        onPhaseComplete,
         getState: () => state
     };
 })();
