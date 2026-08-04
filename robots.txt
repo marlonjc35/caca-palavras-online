@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://caca-palavras-online.vercel.app/sitemap.xml
+Sitemap: https://caca-palavras-online-black.vercel.app/sitemap.xml
