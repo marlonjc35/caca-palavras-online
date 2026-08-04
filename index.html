@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="description" content="Caça-Palavras Online — Jogo de caça-palavras gratuito em português. Tabuleiros gerados proceduralmente, modos aleatório e diário, ranking e conquistas.">
+    <meta name="keywords" content="caça-palavras, jogo online, palavras cruzadas, caça palavras português, jogo grátis, puzzle, word search">
+    <meta name="author" content="marlonjc35">
+    <meta name="theme-color" content="#6c5ce7">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Caça-Palavras Online">
+    <meta property="og:description" content="Jogo de caça-palavras gratuito em português com tabuleiros gerados proceduralmente.">
+    <meta property="og:image" content="assets/screenshots/og-image.png">
+    <meta property="og:url" content="https://caca-palavras-online.vercel.app">
+    <meta property="og:locale" content="pt_BR">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Caça-Palavras Online">
+    <meta name="twitter:description" content="Jogo de caça-palavras gratuito em português com tabuleiros gerados proceduralmente.">
+    <meta name="twitter:image" content="assets/screenshots/og-image.png">
+
+    <!-- Schema.org -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Caça-Palavras Online",
+        "description": "Jogo de caça-palavras gratuito em português com tabuleiros gerados proceduralmente, modos aleatório e diário, ranking e conquistas.",
+        "applicationCategory": "Game",
+        "operatingSystem": "Web",
+        "inLanguage": "pt-BR",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "BRL"
+        },
+        "author": {
+            "@type": "Person",
+            "name": "marlonjc35"
+        }
+    }
+    </script>
+
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="assets/images/icons/icon-192.png">
+    <link rel="icon" type="image/svg+xml" href="assets/images/icons/favicon.svg">
+
+    <title>Caça-Palavras Online — Jogo Grátis em Português</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <!-- Canvas de partículas -->
+    <canvas class="particle-canvas" id="particle-canvas" aria-hidden="true"></canvas>
+
+    <!-- Background decorativo -->
+    <div class="bg-decoration" aria-hidden="true">
+        <div class="bg-blob bg-blob-1"></div>
+        <div class="bg-blob bg-blob-2"></div>
+        <div class="bg-blob bg-blob-3"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="app-header" role="banner">
+        <div class="header-content">
+            <a href="#" class="logo" data-action="back" aria-label="Voltar ao menu">
+                <span class="logo-icon">🎯</span>
+                <span class="logo-text">Caça-Palavras</span>
+            </a>
+            <button class="icon-btn" id="theme-toggle" data-action="theme-toggle" aria-label="Alternar tema" title="Alternar tema">🌙</button>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main class="app-main" role="main">
+
+        <!-- ===== TELA: MENU ===== -->
+        <section class="screen active" data-screen="menu" tabindex="-1" aria-label="Menu principal">
+            <div class="menu-container">
+                <div class="menu-hero">
+                    <h1 class="menu-title">Caça-Palavras<span class="title-accent">Online</span></h1>
+                    <p class="menu-subtitle">Milhares de tabuleiros únicos. Gerados proceduralmente.</p>
+                    <div class="menu-stats">
+                        <div class="menu-stat">
+                            <span class="menu-stat-value" id="menu-total-words">—</span>
+                            <span class="menu-stat-label">Palavras</span>
+                        </div>
+                        <div class="menu-stat">
+                            <span class="menu-stat-value">3</span>
+                            <span class="menu-stat-label">Níveis</span>
+                        </div>
+                        <div class="menu-stat">
+                            <span class="menu-stat-value" id="menu-daily-seed">—</span>
+                            <span class="menu-stat-label">Desafio Diário</span>
+                        </div>
+                    </div>
+                </div>
+
+                <nav class="menu-nav" role="navigation" aria-label="Menu do jogo">
+                    <button class="menu-btn menu-btn-primary" data-action="new-game">
+                        <span class="menu-btn-icon">🎮</span>
+                        <span class="menu-btn-text">Novo Jogo</span>
+                        <span class="menu-btn-desc">Tabuleiro aleatório</span>
+                    </button>
+                    <button class="menu-btn menu-btn-daily" data-action="daily-game">
+                        <span class="menu-btn-icon">📅</span>
+                        <span class="menu-btn-text">Desafio Diário</span>
+                        <span class="menu-btn-desc">Mesmo desafio para todos</span>
+                    </button>
+                    <button class="menu-btn" id="btn-continue" data-action="continue">
+                        <span class="menu-btn-icon">▶️</span>
+                        <span class="menu-btn-text">Continuar</span>
+                        <span class="menu-btn-desc">Retomar jogo salvo</span>
+                    </button>
+                    <div class="menu-btn-row">
+                        <button class="menu-btn menu-btn-small" data-action="ranking">
+                            <span class="menu-btn-icon">🏆</span>
+                            <span class="menu-btn-text">Ranking</span>
+                        </button>
+                        <button class="menu-btn menu-btn-small" data-action="stats">
+                            <span class="menu-btn-icon">📊</span>
+                            <span class="menu-btn-text">Estatísticas</span>
+                        </button>
+                        <button class="menu-btn menu-btn-small" data-action="achievements">
+                            <span class="menu-btn-icon">🎖️</span>
+                            <span class="menu-btn-text">Conquistas</span>
+                        </button>
+                    </div>
+                    <div class="menu-btn-row">
+                        <button class="menu-btn menu-btn-small" data-action="settings">
+                            <span class="menu-btn-icon">⚙️</span>
+                            <span class="menu-btn-text">Configurações</span>
+                        </button>
+                        <button class="menu-btn menu-btn-small" data-action="tutorial">
+                            <span class="menu-btn-icon">📖</span>
+                            <span class="menu-btn-text">Tutorial</span>
+                        </button>
+                        <button class="menu-btn menu-btn-small" data-action="about">
+                            <span class="menu-btn-icon">ℹ️</span>
+                            <span class="menu-btn-text">Sobre</span>
+                        </button>
+                    </div>
+                </nav>
+            </div>
+        </section>
+
+        <!-- ===== TELA: JOGO ===== -->
+        <section class="screen" data-screen="game" tabindex="-1" aria-label="Jogo">
+            <div class="game-layout">
+                <!-- Top bar do jogo -->
+                <div class="game-topbar">
+                    <button class="icon-btn" data-action="back" aria-label="Voltar ao menu" title="Voltar">←</button>
+                    <div class="game-info">
+                        <div class="info-chip">
+                            <span class="info-chip-icon">⏱️</span>
+                            <span id="game-timer">00:00</span>
+                        </div>
+                        <div class="info-chip">
+                            <span class="info-chip-icon">🔍</span>
+                            <span id="words-remaining">0/0</span>
+                        </div>
+                        <div class="info-chip">
+                            <span class="info-chip-icon">🏆</span>
+                            <span id="game-score">0</span>
+                        </div>
+                        <span class="daily-badge" id="daily-badge" style="display:none"></span>
+                    </div>
+                    <div class="game-actions">
+                        <button class="icon-btn" data-action="hint" aria-label="Dica" title="Dica (H)">
+                            💡<span class="badge" id="hints-remaining">3</span>
+                        </button>
+                        <button class="icon-btn" data-action="pause" aria-label="Pausar" title="Pausar (Espaço)">⏸️</button>
+                    </div>
+                </div>
+
+                <!-- Progresso -->
+                <div class="progress-container" role="progressbar" aria-label="Progresso do jogo">
+                    <div class="progress-track">
+                        <div class="progress-fill" id="progress-bar" style="width:0%"></div>
+                    </div>
+                    <span class="progress-text" id="progress-percent">0%</span>
+                </div>
+
+                <!-- Grid + Lista de palavras -->
+                <div class="game-content">
+                    <div class="game-board-wrapper">
+                        <div class="grid-container" id="game-grid" role="grid" aria-label="Tabuleiro de caça-palavras"></div>
+                        <div class="pause-overlay" id="pause-overlay">
+                            <div class="pause-content">
+                                <h2>⏸️ Pausado</h2>
+                                <button class="btn btn-primary" data-action="pause">Retomar</button>
+                                <button class="btn btn-danger" data-action="abandon">Abandonar</button>
+                            </div>
+                        </div>
+                    </div>
+                    <aside class="word-list-panel" aria-label="Lista de palavras">
+                        <h3 class="word-list-title">Palavras</h3>
+                        <div class="word-list" id="word-list"></div>
+                    </aside>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== TELA: RANKING ===== -->
+        <section class="screen" data-screen="ranking" tabindex="-1" aria-label="Ranking">
+            <div class="page-container">
+                <div class="page-header">
+                    <button class="icon-btn" data-action="back" aria-label="Voltar">←</button>
+                    <h2 class="page-title">🏆 Ranking</h2>
+                </div>
+                <div class="page-body" id="ranking-content"></div>
+            </div>
+        </section>
+
+        <!-- ===== TELA: ESTATÍSTICAS ===== -->
+        <section class="screen" data-screen="stats" tabindex="-1" aria-label="Estatísticas">
+            <div class="page-container">
+                <div class="page-header">
+                    <button class="icon-btn" data-action="back" aria-label="Voltar">←</button>
+                    <h2 class="page-title">📊 Estatísticas</h2>
+                </div>
+                <div class="page-body" id="stats-content"></div>
+            </div>
+        </section>
+
+        <!-- ===== TELA: CONQUISTAS ===== -->
+        <section class="screen" data-screen="achievements" tabindex="-1" aria-label="Conquistas">
+            <div class="page-container">
+                <div class="page-header">
+                    <button class="icon-btn" data-action="back" aria-label="Voltar">←</button>
+                    <h2 class="page-title">🎖️ Conquistas</h2>
+                </div>
+                <div class="page-body" id="achievements-content"></div>
+            </div>
+        </section>
+
+        <!-- ===== TELA: CONFIGURAÇÕES ===== -->
+        <section class="screen" data-screen="settings" tabindex="-1" aria-label="Configurações">
+            <div class="page-container">
+                <div class="page-header">
+                    <button class="icon-btn" data-action="back" aria-label="Voltar">←</button>
+                    <h2 class="page-title">⚙️ Configurações</h2>
+                </div>
+                <div class="page-body">
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">🔊 Áudio</h3>
+                        <div class="setting-row">
+                            <label for="setting-sound">Ativar sons</label>
+                            <input type="checkbox" id="setting-sound" class="toggle-switch">
+                        </div>
+                        <div class="setting-row">
+                            <label for="setting-volume">Volume</label>
+                            <input type="range" id="setting-volume" min="0" max="1" step="0.1" class="range-slider">
+                        </div>
+                    </div>
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">🎨 Aparência</h3>
+                        <div class="setting-row">
+                            <label for="setting-theme">Tema</label>
+                            <select id="setting-theme" class="select-input">
+                                <option value="dark">🌙 Modo Escuro</option>
+                                <option value="light">☀️ Modo Claro</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">👤 Perfil</h3>
+                        <div class="setting-row">
+                            <label for="setting-name">Nome no ranking</label>
+                            <input type="text" id="setting-name" class="text-input" placeholder="Seu nome" maxlength="20">
+                        </div>
+                    </div>
+                    <div class="settings-section">
+                        <h3 class="settings-section-title">🌐 Idioma</h3>
+                        <div class="setting-row">
+                            <label for="setting-language">Idioma</label>
+                            <select id="setting-language" class="select-input" disabled>
+                                <option value="pt-BR">🇧🇷 Português (Brasil)</option>
+                                <option value="en-US">🇺🇸 English (em breve)</option>
+                                <option value="es-ES">🇪🇸 Español (em breve)</option>
+                            </select>
+                        </div>
+                        <p class="settings-hint">Suporte a mais idiomas será adicionado em breve.</p>
+                    </div>
+                    <div class="settings-section settings-danger">
+                        <h3 class="settings-section-title">⚠️ Zona de Perigo</h3>
+                        <button class="btn btn-danger" id="setting-reset">Resetar Todos os Dados</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== TELA: TUTORIAL ===== -->
+        <section class="screen" data-screen="tutorial" tabindex="-1" aria-label="Tutorial">
+            <div class="page-container">
+                <div class="page-header">
+                    <button class="icon-btn" data-action="back" aria-label="Voltar">←</button>
+                    <h2 class="page-title">📖 Como Jogar</h2>
+                </div>
+                <div class="page-body tutorial-content">
+                    <div class="tutorial-step">
+                        <div class="tutorial-step-icon">1</div>
+                        <div class="tutorial-step-content">
+                            <h3>Escolha um modo</h3>
+                            <p><strong>Novo Jogo</strong> gera um tabuleiro aleatório único. <strong>Desafio Diário</strong> dá a todos o mesmo tabuleiro do dia.</p>
+                        </div>
+                    </div>
+                    <div class="tutorial-step">
+                        <div class="tutorial-step-icon">2</div>
+                        <div class="tutorial-step-content">
+                            <h3>Selecione o nível</h3>
+                            <p><strong>🟢 Fácil</strong>: 10×10 com 8 palavras curtas. <strong>🟡 Médio</strong>: 15×15 com 15 palavras. <strong>🔴 Difícil</strong>: 20×20 com 25 palavras longas.</p>
+                        </div>
+                    </div>
+                    <div class="tutorial-step">
+                        <div class="tutorial-step-icon">3</div>
+                        <div class="tutorial-step-content">
+                            <h3>Encontre as palavras</h3>
+                            <p>Clique e arraste sobre as letras para selecionar uma palavra. As palavras podem estar em <strong>qualquer direção</strong>: horizontal, vertical, diagonal, normal ou invertida.</p>
+                        </div>
+                    </div>
+                    <div class="tutorial-step">
+                        <div class="tutorial-step-icon">4</div>
+                        <div class="tutorial-step-content">
+                            <h3>Use dicas com sabedoria</h3>
+                            <p>Você tem dicas limitadas (dependendo do nível). Cada dica revela a primeira letra de uma palavra não encontrada, mas reduz sua pontuação.</p>
+                        </div>
+                    </div>
+                    <div class="tutorial-step">
+                        <div class="tutorial-step-icon">5</div>
+                        <div class="tutorial-step-content">
+                            <h3>Ganhe pontos e conquistas</h3>
+                            <p>Quanto mais rápido encontrar todas as palavras, mais pontos ganha. Complete jogos para desbloquear conquistas e subir no ranking!</p>
+                        </div>
+                    </div>
+                    <div class="tutorial-shortcuts">
+                        <h3>⌨️ Atalhos de Teclado</h3>
+                        <div class="shortcut-list">
+                            <div class="shortcut"><kbd>Esp</kbd> Pausar/Retomar</div>
+                            <div class="shortcut"><kbd>H</kbd> Usar dica</div>
+                            <div class="shortcut"><kbd>Esc</kbd> Pausar/Fechar</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== TELA: SOBRE ===== -->
+        <section class="screen" data-screen="about" tabindex="-1" aria-label="Sobre">
+            <div class="page-container">
+                <div class="page-header">
+                    <button class="icon-btn" data-action="back" aria-label="Voltar">←</button>
+                    <h2 class="page-title">ℹ️ Sobre</h2>
+                </div>
+                <div class="page-body about-content">
+                    <div class="about-logo">
+                        <span class="about-logo-icon">🎯</span>
+                        <h3>Caça-Palavras Online</h3>
+                        <p class="about-version">Versão 1.0.0</p>
+                    </div>
+                    <p class="about-description">
+                        Um jogo de caça-palavras profissional, gratuito e em português.
+                        Cada tabuleiro é gerado proceduralmente com um algoritmo de semente (seed),
+                        garantindo milhares de combinações únicas. Jogue no modo aleatório
+                        para desafios infinitos ou no modo diário para competir com outros jogadores.
+                    </p>
+                    <div class="about-features">
+                        <div class="about-feature">
+                            <span class="about-feature-icon">🎲</span>
+                            <span>Geração procedural com seed</span>
+                        </div>
+                        <div class="about-feature">
+                            <span class="about-feature-icon">📅</span>
+                            <span>Modo diário (estilo Wordle)</span>
+                        </div>
+                        <div class="about-feature">
+                            <span class="about-feature-icon">📚</span>
+                            <span>Mais de 1.000 palavras</span>
+                        </div>
+                        <div class="about-feature">
+                            <span class="about-feature-icon">🏷️</span>
+                            <span>27 categorias</span>
+                        </div>
+                        <div class="about-feature">
+                            <span class="about-feature-icon">🏆</span>
+                            <span>Ranking e conquistas</span>
+                        </div>
+                        <div class="about-feature">
+                            <span class="about-feature-icon">📱</span>
+                            <span>PWA — funciona offline</span>
+                        </div>
+                        <div class="about-feature">
+                            <span class="about-feature-icon">🎨</span>
+                            <span>Dark e Light mode</span>
+                        </div>
+                        <div class="about-feature">
+                            <span class="about-feature-icon">♿</span>
+                            <span>Acessível e responsivo</span>
+                        </div>
+                    </div>
+                    <div class="about-tech">
+                        <h4>Tecnologias</h4>
+                        <div class="tech-badges">
+                            <span class="tech-badge">HTML5</span>
+                            <span class="tech-badge">CSS3</span>
+                            <span class="tech-badge">JavaScript ES6+</span>
+                            <span class="tech-badge">Web Audio API</span>
+                            <span class="tech-badge">PWA</span>
+                            <span class="tech-badge">LocalStorage</span>
+                        </div>
+                    </div>
+                    <div class="about-links">
+                        <a href="https://github.com/marlonjc35/caca-palavras-online" target="_blank" rel="noopener" class="about-link">📂 Código Fonte</a>
+                        <a href="https://caca-palavras-online.vercel.app" target="_blank" rel="noopener" class="about-link">🌐 Demo Online</a>
+                    </div>
+                    <p class="about-license">Licença MIT © 2026 marlonjc35</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modal-overlay" aria-hidden="true">
+        <div class="modal" id="modal" tabindex="-1" role="dialog" aria-modal="true"></div>
+    </div>
+
+    <!-- Toast container -->
+    <div class="toast-container" id="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Scripts -->
+    <script src="assets/js/dictionary.js"></script>
+    <script src="assets/js/levels.js"></script>
+    <script src="assets/js/generator.js"></script>
+    <script src="assets/js/storage.js"></script>
+    <script src="assets/js/audio.js"></script>
+    <script src="assets/js/ui.js"></script>
+    <script src="assets/js/game.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            UI.init();
+            Game.init();
+
+            // Atualiza stats do menu
+            const totalWords = Dictionary.getTotalWordCount();
+            const el = document.getElementById('menu-total-words');
+            if (el) el.textContent = totalWords.toLocaleString('pt-BR');
+
+            const dailySeed = document.getElementById('menu-daily-seed');
+            if (dailySeed) dailySeed.textContent = Generator.getDailySeedString();
+
+            // Registra service worker
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('service-worker.js')
+                    .catch(err => console.warn('SW registration failed:', err));
+            }
+
+            // Detecta primeira visita para mostrar tutorial
+            if (!localStorage.getItem('cp_visited')) {
+                localStorage.setItem('cp_visited', '1');
+                setTimeout(() => {
+                    UI.showToast('Bem-vindo! Confira o tutorial para aprender a jogar. 👋', 'info', 5000);
+                }, 1000);
+            }
+        });
+    </script>
+</body>
+</html>

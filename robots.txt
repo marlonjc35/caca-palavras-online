@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://caca-palavras-online.vercel.app/sitemap.xml

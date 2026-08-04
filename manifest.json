@@ -1,0 +1,45 @@
+{
+    "name": "Caça-Palavras Online",
+    "short_name": "Caça-Palavras",
+    "description": "Jogo de caça-palavras gratuito em português com tabuleiros gerados proceduralmente.",
+    "lang": "pt-BR",
+    "start_url": "/",
+    "scope": "/",
+    "display": "standalone",
+    "orientation": "any",
+    "background_color": "#0f0f1a",
+    "theme_color": "#6c5ce7",
+    "categories": ["games", "entertainment", "puzzle"],
+    "icons": [
+        {
+            "src": "assets/images/icons/favicon.svg",
+            "type": "image/svg+xml",
+            "sizes": "any",
+            "purpose": "any"
+        },
+        {
+            "src": "assets/images/icons/icon-192.png",
+            "type": "image/png",
+            "sizes": "192x192",
+            "purpose": "maskable any"
+        },
+        {
+            "src": "assets/images/icons/icon-512.png",
+            "type": "image/png",
+            "sizes": "512x512",
+            "purpose": "maskable any"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "Novo Jogo",
+            "url": "/?action=new-game",
+            "icons": [{ "src": "assets/images/icons/icon-192.png", "sizes": "192x192" }]
+        },
+        {
+            "name": "Desafio Diário",
+            "url": "/?action=daily",
+            "icons": [{ "src": "assets/images/icons/icon-192.png", "sizes": "192x192" }]
+        }
+    ]
+}
